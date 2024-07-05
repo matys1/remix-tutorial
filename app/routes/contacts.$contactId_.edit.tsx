@@ -14,14 +14,18 @@ export const loader = async ({params}: LoaderFunctionArgs) => {
   return json({ contact });
 };
 
-export const action = async ({
-  params,
-  request,
-}: ActionFunctionArgs) => {
+export const action = async ({ params, request }: ActionFunctionArgs) => {
   invariant(params.contactId, "Missing contactId param");
+  // get the form data; this is all the same regardless if CSR or SSR (e.g. JS enabled) form submission is performed
   const formData = await request.formData();
+  // // extract first and last name values from the submitted form data fields
+  // const firstName = formData.get("first");
+  // const lastName = formData.get("last");
+  // or alternatively instead of extracting formData field-by-field you can use `Object.fromEntries` to collect them all into a single object
   const updates = Object.fromEntries(formData);
+  // use the form data to update the contact
   await updateContact(params.contactId, updates);
+  // redirect back to the contact page
   return redirect(`/contacts/${params.contactId}`);
 };
 
