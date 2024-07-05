@@ -13,12 +13,16 @@ import type { LinksFunction } from "@remix-run/node";
 // note that `./app.css` is just a css file and doesn't have any exports. however, the special syntax `?url` 
 // instructs Vite to simply obtain the URL of that resource that can then used to link to in `<Links />`.
 import appStylesHref from "./app.css?url";
-import { getContacts } from "./data";
+import { getContacts, createEmptyContact } from "./data";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: appStylesHref },
 ];
 
+export const action = async () => {
+  const contact = await createEmptyContact();
+  return json({ contact });
+};
 
 export const loader = async () => {
   const contacts = await getContacts();
