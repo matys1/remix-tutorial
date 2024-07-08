@@ -8,6 +8,7 @@ import {
   Outlet,
   NavLink,
   useLoaderData,
+  useNavigation,
 } from "@remix-run/react";
 import type { LinksFunction } from "@remix-run/node";
 // note that `./app.css` is just a css file and doesn't have any exports. however, the special syntax `?url` 
@@ -31,6 +32,8 @@ export const loader = async () => {
 
 export default function App() {
   const { contacts } = useLoaderData<typeof loader>();
+  const navigation = useNavigation();
+
   return (
     <html lang="en">
       <head>
@@ -93,11 +96,11 @@ export default function App() {
             )}
           </nav>
         </div>
-        <div id="detail">
-          <Outlet />
-        </div>
-        <ScrollRestoration />
-        <Scripts />
+          <div id="detail" className={navigation.state === "loading" ? "loading" : ""}>
+            <Outlet />
+          </div>
+          <ScrollRestoration />
+          <Scripts />
       </body>
     </html>
   );
