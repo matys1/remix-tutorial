@@ -2,9 +2,16 @@ import type { LoaderFunctionArgs, ActionFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, useLoaderData, useNavigate } from "@remix-run/react";
 import invariant from "tiny-invariant";
-
 import { getContact, updateContact  } from "../data";
 
+/*
+  this `loader` is functionally the same as the `loader` in `/contacts/some-name` route.
+
+  runs when rendering / re-validating this route. it gets the given `contactId` from `params`,
+  fetches the contact details and returns the `contact` data for that given `contactId`.
+
+  whenever this `loader` runs the `App` component below will also re-render.
+*/
 export const loader = async ({params}: LoaderFunctionArgs) => {
   invariant(params.contactId, "Missing contactId param");
   const contact = await getContact(params.contactId);
@@ -14,6 +21,11 @@ export const loader = async ({params}: LoaderFunctionArgs) => {
   return json({ contact });
 };
 
+/*
+  runs when you click on the "Save" Form button with POST `method` and default `action` targeting
+  this route. it simply retrieves the form data as `formData` and calls `updateContact` to update
+  the contact and redirects back to the "/contacts/some-name" route.
+*/
 export const action = async ({ params, request }: ActionFunctionArgs) => {
   invariant(params.contactId, "Missing contactId param");
   // get the form data; this is all the same regardless if CSR or SSR (e.g. JS enabled) form submission is performed
@@ -30,10 +42,18 @@ export const action = async ({ params, request }: ActionFunctionArgs) => {
 };
 
 export default function EditContact() {
+   // access data returned by `loader`.
   const { contact } = useLoaderData<typeof loader>();
+
+  // a hook that lets you perform browser navigation programmatically on-demand (used 
+  // by the "Cancel" button to navigate back to the "/contacts/some-name" route).
   const navigate = useNavigate();
 
   return (
+    /*
+      this Form button with the POST `method` and default `action` targeting this route once the "Save"
+      button is clicked will send the request to the `action` function above.
+    */
     <Form key={contact.id} id="contact-form" method="post">
       <p>
         <span>Name</span>
